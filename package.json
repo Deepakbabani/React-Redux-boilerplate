@@ -1,5 +1,5 @@
 {
-  "name": "my-react-app",
+  "name": "react-redux-boilerplate",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -31,3 +31,4 @@
     "vite": "^5.2.0"
   }
 }
+
