@@ -7,7 +7,6 @@ const childProcess = require("child_process");
 const simpleGit = require("simple-git");
 const repoURL = "https://github.com/Deepakbabani/React-Redux-boilerplate.git"; // Replace with your repository URL
 const localPath = "./code"; // Replace with your desired local directory
-const folderName = "src"; // Replace with the folder you want to access
 
 const DEPENDENCIES = [
   "@reduxjs/toolkit",
@@ -149,7 +148,7 @@ const createProjectCommand = () => {
   });
 };
 
-simpleGit().clone(repoURL, localPath, (err) => {
+simpleGit().clone(repoURL, localPath, ["--branch", "master"], (err) => {
   if (err) {
     console.error("Failed to clone repository:", err);
     return;
