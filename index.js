@@ -4,6 +4,11 @@ const readline = require("readline");
 const fs = require("fs"); // File System module to handle file operations
 const path = require("path");
 const childProcess = require("child_process");
+const simpleGit = require("simple-git");
+const repoURL = "https://github.com/Deepakbabani/React-Redux-boilerplate.git"; // Replace with your repository URL
+const localPath = "./code"; // Replace with your desired local directory
+const folderName = "src"; // Replace with the folder you want to access
+
 const DEPENDENCIES = [
   "@reduxjs/toolkit",
   "react-redux",
@@ -21,7 +26,7 @@ const createDirs = (folderStructure, path = ".", projectName, userName) => {
         if (typeof file === "string") {
           let srcPath = `${path}/${dir}/${file}`.replace(
             `./${projectName}/`,
-            ""
+            "code/"
           );
           let fileContent = fs.readFileSync(srcPath, "utf8");
           if (file === "HomePage.tsx") {
@@ -57,7 +62,21 @@ function generateStructure(directoryPath, folderName) {
   return structure;
 }
 
-let folderStructure = generateStructure("src", "src");
+function deleteFolderRecursive(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach((file) => {
+      const curPath = `${path}/${file}`;
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
+        deleteFolderRecursive(curPath);
+      } else {
+        // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+}
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -86,10 +105,7 @@ const createProjectCommand = () => {
     promptForUserName((userName) => {
       console.log(`Hello, ${userName}!`);
       console.log(`Wait let me just cook your project.....`);
-      console.log(
-        "🚀 Project should be live on port 5173! within some seconds........ 🎉"
-      );
-      console.log("🙏 Thanks & Regards, Deepak Babani 🙏");
+
       childProcess.exec(
         `npx create-vite ${projectName} --template react-ts`,
         (err, stdout, _stderr) => {
@@ -97,6 +113,7 @@ const createProjectCommand = () => {
             console.error(err);
             return;
           } else {
+            let folderStructure = generateStructure("code/src", "src");
             childProcess.exec(
               `cd ${projectName} && npm install ${DEPENDENCIES.join(" ")}`,
               (err) => {
@@ -112,15 +129,15 @@ const createProjectCommand = () => {
                     projectName,
                     userName
                   );
-                  childProcess.exec(
-                    `cd ${projectName} && npm run dev`,
-                    (err) => {
-                      if (err) {
-                        console.log(err);
-                        return;
-                      }
-                    }
+                  console.log("🚀 Project is ready to go........ 🎉");
+                  console.log(
+                    "Enter the following commands to run your project>>>>>>>"
                   );
+                  console.log(`cd ${projectName}`);
+                  console.log(`>>>> npm run dev`);
+                  console.log("🙏 Thanks & Regards, Deepak Babani 🙏");
+                  deleteFolderRecursive("./code");
+                  process.exit();
                 }
               }
             );
@@ -132,4 +149,11 @@ const createProjectCommand = () => {
   });
 };
 
-createProjectCommand();
+simpleGit().clone(repoURL, localPath, (err) => {
+  if (err) {
+    console.error("Failed to clone repository:", err);
+    return;
+  }
+
+  createProjectCommand();
+});
